@@ -8,6 +8,11 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+// TEST ROUTE
+app.get('/', (req, res) => {
+  res.send('Server is running 🚀');
+});
+
 // 0. ADMIN LOGIN
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
