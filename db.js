@@ -20,7 +20,7 @@ const initializeDB = async () => {
     const connection = await pool.getConnection();
     console.log('Connected to MySQL database!');
     
-    // Create the entries table
+    // 1. Create the entries table
     await connection.query(`
       CREATE TABLE IF NOT EXISTS user_entries (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -34,9 +34,29 @@ const initializeDB = async () => {
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+    console.log('Database table "user_entries" is ready.');
+
+    // 2. Create the admins table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS admins (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(50) NOT NULL UNIQUE,
+        password VARCHAR(255) NOT NULL,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Database table "admins" is ready.');
+
+    // 3. Seed default admin if table is empty
+    const [rows] = await connection.query('SELECT COUNT(*) as count FROM admins');
+    if (rows[0].count === 0) {
+      await connection.query(
+        "INSERT INTO admins (username, password) VALUES ('admin', 'admin123')"
+      );
+      console.log('Default admin account created (admin/admin123).');
+    }
     
     connection.release();
-    console.log('Database table "user_entries" is ready.');
   } catch (error) {
     console.error('Error connecting to MySQL:', error.message);
     console.log('\n--- Troubleshooting ---');
